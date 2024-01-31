@@ -77,7 +77,7 @@
                 <strong>You:</strong> {{ user_input }}
             </div>
             <div class="chat-message bot-message">
-                <strong>Chatbot:</strong> {{ bot_response }}
+                <strong>Chatbot:</strong> {{ bot_response | safe }}
             </div>
         </div>
         <form action="/chat" method="POST">
