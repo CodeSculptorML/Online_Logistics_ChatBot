@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request,redirect,url_for,session
 import difflib
 
 app = Flask(__name__)
@@ -48,16 +48,22 @@ extended_logistics = [
     
 ]
 
+# Login route
+
 # Flask routes
 @app.route("/")
 def index():
-    # Since there's no need for index.html, redirect to chat.html
-    return render_template("chat.html")
+   # Since there's no need for index.html, redirect to chat.html
+    return render_template("login.html")
 
 @app.route("/chat", methods=["POST"])
 def chat():
     user_input = request.form.get("user_input")
-    
+    #user_input = "Hi"
+    if user_input is None:
+        user_input = "Hi"
+    else:
+        user_input = request.form.get("user_input")
     # Get response
     bot_response = get_response(user_input)
     
