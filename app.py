@@ -1,8 +1,9 @@
 from flask import Flask, render_template, request,redirect,url_for,session
 import difflib
+import random
 
 app = Flask(__name__)
-
+app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 # Initial chatbot responses
 extended_logistics = [
     ["delivery date", ["Please let me know you tracking ID."]],
@@ -48,6 +49,13 @@ extended_logistics = [
     
 ]
 
+delivery_addresses = [
+    "123 ABC street, Gandhipuram, Coimbatore, Tamil Nadu, India",
+    "456 XYZ Road, RS Puram, Coimbatore, Tamil Nadu, India",
+    "789 PQR Avenue, Peelamedu, Coimbatore, Tamil Nadu, India",
+    "321 LMN Lane, Saibaba Colony, Coimbatore, Tamil Nadu, India",
+    "987 EFG Street, Ramanathapuram, Coimbatore, Tamil Nadu, India"
+]
 # Login route
 
 # Flask routes
@@ -78,6 +86,12 @@ def chat():
 def get_response(user_input):
     user_input_lower = user_input.lower()
     response = None
+
+    for tracking_id in ["ABD34Y6J", "ABD56FGQ", "JY673545"]:
+        if tracking_id.lower() in user_input_lower:
+            session["tracking_id"] = tracking_id
+            response = f"Hey, your package with tracking ID {tracking_id} is currently in transit."
+            return response
     
     for pattern, replies in extended_logistics:
         if any(word in user_input_lower for word in pattern.split('|')):
@@ -90,6 +104,41 @@ def get_response(user_input):
             response = [replies for pattern, replies in extended_logistics if pattern.split('|')[0] == closest_match[0]][0][0]
         else:
             response = "Please ask me questions only about Delivery status and shipping services"
+
+    #if "change delivery location" in user_input_lower or "2" in user_input_lower:
+     #   response = "Sure, please provide me with your tracking ID."
+      #  session["change_delivery_location"] = True
+    
+    # Handle updating delivery address
+    #elif session.get("change_delivery_location"):
+     #   response = f"Okay, I have updated your delivery address to {user_input}."
+      #  session.pop("change_delivery_location", None)
+            
+    # Handle adding new delivery location
+    if "change delivery location" in user_input_lower or "2." in user_input_lower:
+        # Check if tracking ID is already stored in session
+        if "tracking_id" in session:
+            response = "Okay, please provide me with the new delivery address."
+        else:
+            response = "Sure, please provide me with your tracking ID."
+    
+    # Handle updating delivery address
+    elif "tracking_id" in session:
+        new_delivery_address = user_input
+        tracking_id = session["tracking_id"]
+        response = f"Okay, I have updated your delivery address for tracking ID {tracking_id} to {new_delivery_address}."
+        session.pop("tracking_id")
+
+
+    if "current delivery address" in user_input_lower or "3" in user_input_lower:
+        current_delivery_address = random.choice(delivery_addresses)
+        response = f"Your current delivery address is {current_delivery_address}."
+
+    if "1" in user_input_lower or "delivery date" in user_input_lower:
+        random_days = random.choice(["1-2", "3-4", "5-7"])
+        response = f"Your package with tracking number {tracking_id} is currently in transit and expected to be delivered in {random_days} days."
+
+    
             
     return response
 
